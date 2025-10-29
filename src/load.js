@@ -6,14 +6,14 @@ import { createObjectCsvWriter } from "csv-writer";
 async function main() {
   console.log("Loading silver data for aggregation...");
   const infile = path.join(process.cwd(), "data", "silver", "covid_clean.csv");
-  const agg = {}; // key = state|YYYY-MM
+  const agg = {};
 
   fs.createReadStream(infile)
     .pipe(csv())
     .on("data", (r) => {
       const date = r.notification_date;
       if (!date) return;
-      const month = date.slice(0, 7); // YYYY-MM
+      const month = date.slice(0, 7);
       const key = `${r.state}|${month}`;
       if (!agg[key])
         agg[key] = { covid_uti_sum: 0, covid_cli_sum: 0, deaths: 0, count: 0 };
@@ -25,6 +25,7 @@ async function main() {
     })
     .on("end", async () => {
       const outRows = [];
+
       for (const [key, v] of Object.entries(agg)) {
         const [state, ym] = key.split("|");
         outRows.push({
@@ -35,6 +36,8 @@ async function main() {
           total_deaths: v.deaths,
         });
       }
+
+      outRows.sort((a, b) => a.state.localeCompare(b.state));
 
       const writer = createObjectCsvWriter({
         path: path.join(process.cwd(), "data", "gold", "covid_summary.csv"),
@@ -48,7 +51,11 @@ async function main() {
       });
 
       await writer.writeRecords(outRows);
-      console.log("Gold layer written:", outRows.length, "rows");
+      console.log(
+        "Gold layer written:",
+        outRows.length,
+        "rows (sorted by state)"
+      );
     });
 }
 
