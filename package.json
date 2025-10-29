@@ -1,0 +1,16 @@
+{
+  "name": "etl-datasus-sinasc",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "extract": "node src/extract.js",
+    "transform": "node src/transform.js",
+    "load": "node src/load.js"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "csv-writer": "^1.6.0",
+    "mkdirp": "^1.0.4",
+    "node-fetch": "^3.3.2"
+  }
+}
